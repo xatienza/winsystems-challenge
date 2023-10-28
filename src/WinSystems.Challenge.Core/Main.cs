@@ -1,5 +1,8 @@
 ﻿namespace WinSystems.Challenge.Core;
-public class Class1
+public class Main
 {
-
+    public void Start()
+    {
+        
+    }
 }
