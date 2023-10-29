@@ -14,6 +14,8 @@ public class Main
 
     private async Task CheckFinalResult(string encode)
     {
+        await Task.Delay(ChallengeEntity.ApiRequestLimits);
+        
         var result = await _service.FinallyCheck(encode);
 
         if (!result)
@@ -56,9 +58,6 @@ public class Main
                     }
 
                     blockPosition = challenge.OrderedBlocks++;
-
-                    //blockPosition = challenge.OrderedBlocks;
-
                 }
                 else
                     blockPosition++;
@@ -79,13 +78,21 @@ public class Main
     }
 
     private async Task<string> SignIn(string email)
-        => await _service.GetToken(email);
+    { 
+        var token = await _service.GetToken(email);
+        
+        await Task.Delay(ChallengeEntity.ApiRequestLimits);
+        
+        return token;
+    }
 
     private async Task<ChallengeEntity> GetChallenge()
     {
         var blocks = await _service.GetBlocks();
         if (blocks == null)
             throw new NullReferenceException("Something was wrong retrieving blocks");
+        
+        await Task.Delay(ChallengeEntity.ApiRequestLimits);
 
         return Extensions.ToChallengeEntity(blocks);
     }

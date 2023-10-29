@@ -9,7 +9,7 @@ public class ChallengeEntity
     public int OrderedBlocks { get; set; }
     public string Encode { get; private set; }
 
-    public const int ApiRequestLimits = 800;
+    public const int ApiRequestLimits = 1000;
 
     public ChallengeEntity(string[] blocks, int blocks2Order)
     {
