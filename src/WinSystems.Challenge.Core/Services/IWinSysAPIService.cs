@@ -1,11 +1,13 @@
 namespace WinSystems.Challenge.Core.Services
 {
+	using Dto.WinSysAPI.Responses;
+	
 	public interface IWinSysApiService
 	{
 		bool ServiceAvailability();
-		string GetToken(string email);
-		string GetBlocks(string token);
-		bool CheckOrder(string[] blocks2Order);
-		bool FinallyCheck(string encoded);
+		Task<string> GetToken(string email);
+		Task<BlocksReponseDto> GetBlocks();
+		Task<bool> CheckOrder(string[] blocks2Order);
+		Task<bool> FinallyCheck(string encoded);
 	}
 }

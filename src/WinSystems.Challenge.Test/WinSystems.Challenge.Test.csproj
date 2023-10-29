@@ -21,4 +21,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WinSystems.Challenge.Core\WinSystems.Challenge.Core.csproj" />
+  </ItemGroup>
+
 </Project>
