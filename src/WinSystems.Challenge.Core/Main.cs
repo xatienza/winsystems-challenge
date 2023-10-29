@@ -5,21 +5,38 @@ using Services;
 
 public class Main
 {
+    #region Attributes
     private readonly IWinSysApiService _service;
-
+    #endregion
+    
+    #region Ctor
     public Main()
     {
         _service = new WinSysApiService();
     }
+    #endregion
 
-    private async Task CheckFinalResult(string encode)
+    private async Task CheckFinalResult(ChallengeEntity challenge)
     {
         await Task.Delay(ChallengeEntity.ApiRequestLimits);
         
-        var result = await _service.FinallyCheck(encode);
+        var result = await _service.FinallyCheck(challenge.Encode);
+        
+        await Task.Delay(ChallengeEntity.ApiRequestLimits);
 
         if (!result)
             throw new HttpRequestException("Order method was wrong");
+    }
+
+    private async Task<bool> CheckBlocks(ChallengeEntity challenge, string firstBlock, string secondBlock)
+    {
+        var result = await _service.CheckOrder(new[] { firstBlock, secondBlock });
+        
+        challenge.Stats.IncBlocksCall();
+        
+        await Task.Delay(ChallengeEntity.ApiRequestLimits);
+
+        return result;
     }
 
     private void SetLastElement(ChallengeEntity challenge)
@@ -43,7 +60,7 @@ public class Main
                 var refererBlock = challenge.Blocks[challenge.OrderedBlocks - 1];
                 var block2Check = challenge.Blocks[blockPosition];
 
-                var result = await _service.CheckOrder(new[] { refererBlock, block2Check });
+                var result = await CheckBlocks(challenge,refererBlock, block2Check);
 
                 if (result)
                 {
@@ -61,13 +78,11 @@ public class Main
                 }
                 else
                     blockPosition++;
-
-                await Task.Delay(ChallengeEntity.ApiRequestLimits);
             }
 
             SetLastElement(challenge);
 
-            await CheckFinalResult(challenge.Encode);
+            await CheckFinalResult(challenge);
         }
         finally
         {
@@ -96,16 +111,25 @@ public class Main
 
         return Extensions.ToChallengeEntity(blocks);
     }
-
     
+    /// <summary>
+    /// This method performs the challenge
+    /// </summary>
+    /// <param name="email">user email</param>
+    /// <param name="token">external token</param>
+    /// <returns>Ordered array of blocks</returns>
+    /// <exception cref="ArgumentException">if email is null</exception>
     public async Task<string[]> Check(string email = "", string token = "")
     {
+        // Email cannot be null
         if (string.IsNullOrEmpty(email))
             throw new ArgumentException($"email cannot be null");
         
+        // Get JWT Auth
         if (string.IsNullOrEmpty(token))
             await SignIn(email);
         
+        // Doing de challenge
         return await DoWorkAsync(await GetChallenge());
     }
 }
