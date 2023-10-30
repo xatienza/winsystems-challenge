@@ -9,11 +9,12 @@ using Integrations;
 public class WinSysApiService: IWinSysApiService
 {
     private const int Blocks2CheckLength = 2;
+    private const string WinSysApiUri = "https://devchallenge.winsysgroup.com";
 
     private IWinSysApi _api;
     public WinSysApiService()
     {
-        _api = RestClient.For<IWinSysApi>("https://devchallenge.winsysgroup.com");
+        _api = RestClient.For<IWinSysApi>(WinSysApiUri);
     }
     
     public bool ServiceAvailability()
