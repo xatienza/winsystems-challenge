@@ -5,7 +5,7 @@ This is my own version of the Win Systems Dev Challenge 2023.
 I received the challenge on  October 27, 2023.
 
 ## Table of contents
-* [Authors](@authors)
+* [Authors](#authors)
 * [General Info](#general-info)
 * [Quick Start](#quick-start)
 * [Technologies](#technologies)
