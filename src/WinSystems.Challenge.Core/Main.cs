@@ -66,6 +66,21 @@ public class Main
             challenge.SetOrderedBlock(challenge.Blocks[challenge.Blocks2Order - 1]);
     }
     
+    private int OrderBlocks(ref ChallengeEntity challenge, string orderedBlock, int index)
+    {
+        // set the new block to the encode array
+        challenge.SetOrderedBlock(orderedBlock);
+                    
+        var wildBlock = challenge.Blocks[challenge.OrderedBlocks];
+        challenge.Blocks[challenge.OrderedBlocks] = orderedBlock;
+        challenge.Blocks[index] = wildBlock;
+
+        // reindex the unordered position and set the new position to check
+        challenge.OrderedBlocks++;
+        
+        return challenge.OrderedBlocks;
+    }
+    
     private async Task<string[]>DoWorkAsync(ChallengeEntity challenge)
     {
         try
@@ -92,18 +107,7 @@ public class Main
 
                 // if are sequential then...
                 if (result)
-                {
-                    // set the new block to the encode array
-                    challenge.SetOrderedBlock(block2Check);
-                    
-                    var wildBlock = challenge.Blocks[challenge.OrderedBlocks];
-                    challenge.Blocks[challenge.OrderedBlocks] = block2Check;
-                    challenge.Blocks[blockPosition] = wildBlock;
-
-                    // reindex the unordered position and set the new position to check
-                    challenge.OrderedBlocks++;
-                    blockPosition = challenge.OrderedBlocks;
-                }
+                    blockPosition = OrderBlocks(ref challenge, block2Check, blockPosition);
                 else
                     blockPosition++;
             }
