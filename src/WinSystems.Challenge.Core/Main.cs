@@ -7,6 +7,7 @@ public class Main
 {
     #region Attributes
     private readonly IWinSysApiService _service;
+    private string[] _originalBlocksSequence;
     #endregion
     
     #region Ctor
@@ -30,7 +31,7 @@ public class Main
         await Task.Delay(ChallengeEntity.ApiRequestLimits);
 
         if (!result)
-            throw new Exception("Encode string is wrong");
+            throw new Exception($"Encode string '{challenge.Encode}' is wrong -> result from API: {result}");
     }
 
     /// <summary>
@@ -94,18 +95,14 @@ public class Main
                 {
                     // set the new block to the encode array
                     challenge.SetOrderedBlock(block2Check);
-
-                    // if the two blocks not are sequential then reorder the blocks array
-                    if (blockPosition != challenge.OrderedBlocks)
-                    {
-                        var wildBlock = challenge.Blocks[challenge.OrderedBlocks];
-
-                        challenge.Blocks[challenge.OrderedBlocks] = block2Check;
-                        challenge.Blocks[blockPosition] = wildBlock;
-                    }
+                    
+                    var wildBlock = challenge.Blocks[challenge.OrderedBlocks];
+                    challenge.Blocks[challenge.OrderedBlocks] = block2Check;
+                    challenge.Blocks[blockPosition] = wildBlock;
 
                     // reindex the unordered position and set the new position to check
-                    blockPosition = challenge.OrderedBlocks++;
+                    challenge.OrderedBlocks++;
+                    blockPosition = challenge.OrderedBlocks;
                 }
                 else
                     blockPosition++;
@@ -143,8 +140,10 @@ public class Main
     private async Task<ChallengeEntity> GetChallenge()
     {
         var blocks = await _service.GetBlocks();
-        if (blocks == null)
+        if (blocks == null || blocks.Data == null)
             throw new NullReferenceException("Something was wrong retrieving blocks");
+
+        _originalBlocksSequence = blocks.Data;
         
         await Task.Delay(ChallengeEntity.ApiRequestLimits);
 
